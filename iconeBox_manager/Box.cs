@@ -24,14 +24,18 @@ namespace iconeBox_manager
         public int separatorWidth = 1;
         public string borderColorText = "#ffffff";
         public int titleHeight = 30;
+        bool nouveau = false;
 
         public Box(string title)
         {
             titleBox = title;
         }
 
+
+
         public Box(Box b)
         {
+            nouveau = b.isNew();
             folderPath = b.folderPath;
             titleBox = b.titleBox;
             coefX = b.coefX;
@@ -46,10 +50,20 @@ namespace iconeBox_manager
             separatorWidth = b.separatorWidth;
             borderColorText = b.borderColorText;
             titleHeight = b.titleHeight;
-    }
+     }
 
         public Box()
         {
+        }
+
+        public bool isNew()
+        {
+            return nouveau;
+        }
+
+        public void setNew(bool n)
+        {
+            nouveau = n;
         }
 
         //int entre 0 et 100
