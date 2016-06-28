@@ -28,7 +28,7 @@ namespace iconeBox_manager
         static Config conf = new Config();
         FolderBrowserDialog confIniPath;
         public static string defaultboxName = "new box";
-        
+        char I = '\\';
 
         public BoxManager()
         {
@@ -79,6 +79,7 @@ namespace iconeBox_manager
         private void dialogIni()
         {
             confIniPath = new FolderBrowserDialog();
+            confIniPath.SelectedPath = AppDomain.CurrentDomain.BaseDirectory;
         }
 
         void showOption()
@@ -98,7 +99,7 @@ namespace iconeBox_manager
         {
             try
             {
-                pathConfIni.Text = File.ReadAllText("path_conf.txt");
+                pathConfIni.Text = File.ReadAllText("groupe.txt");
             }
             catch { }
         }
@@ -111,7 +112,8 @@ namespace iconeBox_manager
             StreamReader file = null;
             try
             {
-                file = new StreamReader("conf_init.txt");
+                if(!pathConfIni.Text.Equals(""))
+                    file = new StreamReader(pathConfIni.Text+I+"conf_init.txt");
             }
             catch
             {
@@ -283,15 +285,14 @@ namespace iconeBox_manager
 
         private void boxPath_TextChanged(object sender, EventArgs e)
         {
-
             string p = boxPath.Text;
 
             //modifier le nom si c'est le nom par default ou si il est vide
-
             ((Box)(listBox.SelectedItem)).folderPath = p;
             string nom = p.Substring(p.LastIndexOf('\\') + 1);
+
             if(!nom.Equals(""))
-                boxName.Text = nom;
+                 boxName.Text = nom;
 
             //if path empty alert user
             if (boxPath.Text.Equals(""))
@@ -319,16 +320,25 @@ namespace iconeBox_manager
         private void add_Click(object sender, EventArgs e)
         {
             int i = 0;
-            if (listBox.Items.Count != 0)//si liste vide
+            if (listBox.Items.Count != 0)//si la liste n'est pas vide
             {
+                Box b = new Box(getBox(i));
+                b.titleBox = "new box";
+                b.folderPath = "";
+                b.setNew(true);//signal qu'il faudra importer le dossir
                 i = listBox.SelectedIndex+1;
-                listBox.Items.Insert(i, new Box());
+                listBox.Items.Insert(i, b);
             }
             else
             {
-                listBox.Items.Insert(i, new Box());
+                Box b = new Box();
+                b.setNew(true);//signal qu'il faudra importer le dossir
+                listBox.Items.Insert(i, b);
             }
+            //listBox.SelectedIndexChanged -= listBox_SelectedIndexChanged;
             clearListBox();
+            //listBox.SelectedIndexChanged += listBox_SelectedIndexChanged;
+
             listBox.SetSelected(i, true);
             boxClickedDown = (Box)listBox.Items[i];
         }
@@ -337,7 +347,7 @@ namespace iconeBox_manager
         {
             int firstSelectedIndex = listBox.SelectedIndex;
             IEnumerable<Box> lb = listBox.SelectedItems.Cast<Box>();
-
+            
             int j = lb.Count<Box>();
             //avoid blinking
             bool handelerRemoved = false;
@@ -349,6 +359,7 @@ namespace iconeBox_manager
 
             for (int i = 0; i < j; i++) 
             {
+                R.boxToRemove.Add(lb.ElementAt<Box>(0));
                 listBox.Items.Remove(lb.ElementAt<Box>(0));
             }
 
@@ -423,17 +434,70 @@ namespace iconeBox_manager
 
         private void buttonUpdate_Click(object sender, EventArgs e)
         {
-            String configString = JsonConvert.SerializeObject(conf);
+            string groupe = pathConfIni.Text;
 
-            Box[] tabBox = new Box[listBox.Items.Count];
-            for(int i = 0; i < listBox.Items.Count; i++)
+            if (!groupe.Equals("") && !isPathsEmpty())
             {
-                tabBox[i] = (Box)listBox.Items[i];
+                String configString = JsonConvert.SerializeObject(conf);
+
+                //suprimer box deleted
+                foreach (Box b in R.boxToRemove)
+                {
+                    try
+                    {
+                        if (!b.isNew() && b.folderPath.LastIndexOf('\\') == -1)
+                            Directory.Delete(groupe + I + b.folderPath, true);
+                    }
+                    catch { }
+                }
+
+                if (!Directory.Exists(groupe))//si groupe n'existe pas on le créé
+                {
+                    Directory.CreateDirectory(groupe);
+                }
+
+                Box[] tabBox = new Box[listBox.Items.Count];
+                for (int i = 0; i < listBox.Items.Count; i++)
+                {
+                    Box b = (Box)listBox.Items[i];
+
+                    if (b.isNew())//si box nouvelle on l'importe
+                    {
+                        R.cpd(b.folderPath, R.ici + groupe);
+                    }
+
+                    //copier dossier
+                    b.folderPath = b.folderPath.Substring(b.folderPath.LastIndexOf('\\')+1);
+                    tabBox[i] = b;
+                }
+                string boxString = JsonConvert.SerializeObject(tabBox);
+                File.WriteAllText("conf_init.txt", configString + "|" + boxString);
+                R.cp(R.ici+"conf_init.txt", R.ici+groupe);
+                File.Delete("conf_init.txt");
+                File.WriteAllText("groupe.txt", groupe);
+                MessageBox.Show("la Configuration a bien été envoyée!", "Envoi effectué");
             }
-            string boxString = JsonConvert.SerializeObject(tabBox);
-            File.WriteAllText("conf_init.txt", configString + "|" + boxString);
-            R.cp("conf_init.txt", pathConfIni.Text);
-            MessageBox.Show("la Configuration a bien été envoyée!", "Envoi effectué");
+            else
+            {
+                MessageBox.Show("Le champ Groupe doit etre remplit");
+            }
+            
+        }
+
+        private bool isPathsEmpty()
+        {
+            bool rez = false;
+            for (int i = 0; i < listBox.Items.Count; i++)
+            {
+                Box b = (Box)listBox.Items[i];
+                if (b.folderPath.Equals(""))
+                {
+                    rez = true;
+                    MessageBox.Show(b.titleBox+" doit avoir un chemin");
+                    break;
+                }
+            }
+            return rez;
         }
 
         private void down_Click(object sender, EventArgs e)

@@ -82,9 +82,9 @@ namespace iconeBox_manager
             this.buttonUpdate = new System.Windows.Forms.PictureBox();
             this.ecranImage = new System.Windows.Forms.PictureBox();
             this.groupApercu = new System.Windows.Forms.GroupBox();
+            this.apercu = new iconeBox_manager.Apercu();
             this.dl = new System.Windows.Forms.PictureBox();
             this.annuler = new System.Windows.Forms.PictureBox();
-            this.apercu = new iconeBox_manager.Apercu();
             this.optionGlobal.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nbColonne)).BeginInit();
             this.groupBox.SuspendLayout();
@@ -210,9 +210,9 @@ namespace iconeBox_manager
             this.labelConfig.AutoSize = true;
             this.labelConfig.Location = new System.Drawing.Point(6, 20);
             this.labelConfig.Name = "labelConfig";
-            this.labelConfig.Size = new System.Drawing.Size(60, 13);
+            this.labelConfig.Size = new System.Drawing.Size(42, 13);
             this.labelConfig.TabIndex = 2;
-            this.labelConfig.Text = "Déstination";
+            this.labelConfig.Text = "Groupe";
             // 
             // sup
             // 
@@ -601,6 +601,15 @@ namespace iconeBox_manager
             this.groupApercu.TabStop = false;
             this.groupApercu.Text = "Aperçu";
             // 
+            // apercu
+            // 
+            this.apercu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(9)))), ((int)(((byte)(172)))), ((int)(((byte)(247)))));
+            this.apercu.Location = new System.Drawing.Point(22, 41);
+            this.apercu.Name = "apercu";
+            this.apercu.Size = new System.Drawing.Size(360, 225);
+            this.apercu.TabIndex = 5;
+            this.apercu.Paint += new System.Windows.Forms.PaintEventHandler(this.apercu_Paint);
+            // 
             // dl
             // 
             this.dl.InitialImage = null;
@@ -617,15 +626,6 @@ namespace iconeBox_manager
             this.annuler.Size = new System.Drawing.Size(126, 43);
             this.annuler.TabIndex = 10;
             this.annuler.TabStop = false;
-            // 
-            // apercu
-            // 
-            this.apercu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(9)))), ((int)(((byte)(172)))), ((int)(((byte)(247)))));
-            this.apercu.Location = new System.Drawing.Point(22, 41);
-            this.apercu.Name = "apercu";
-            this.apercu.Size = new System.Drawing.Size(360, 225);
-            this.apercu.TabIndex = 5;
-            this.apercu.Paint += new System.Windows.Forms.PaintEventHandler(this.apercu_Paint);
             // 
             // BoxManager
             // 

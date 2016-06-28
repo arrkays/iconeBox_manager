@@ -14,6 +14,7 @@ namespace iconeBox_manager
         [STAThread]
         static void Main()
         {
+            R.ici = AppDomain.CurrentDomain.BaseDirectory;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new BoxManager());
